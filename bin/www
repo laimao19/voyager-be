@@ -4,8 +4,8 @@
  * Module dependencies.
  */
 
-var app = require('../../resourcesforpj/app');
-var debug = require('debug')('resourcesforpj:server');
+var app = require('../../voyager-be/app');
+var debug = require('debug')('voyager-be:server');
 var http = require('http');
 
 /**
