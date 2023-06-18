@@ -5,22 +5,35 @@ const { Configuration, OpenAIApi } = require('openai');
 const readline = require('readline');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const axios = require('axios');
 
-const configuration = new Configuration({
-    apiKey: chatGPTConfig.chatGPTkey,
-});
+const apiKey = chatGPTConfig.chatGPTkey;
 
-const openai = new OpenAIApi(configuration);
-const userInterface = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+router.post('/chat', async (req, res) => {
+   try {
+       const userInput = req.body.message;
 
-router.use(bodyParser.json());
-router.use(cors());
+       const response = await axios.post(chatGPTConfig.chatGPTAPIEndpoint, {
+           prompt: userInput,
+           max_tokens: 50,
+           temperature: 0.7,
+           n: 1
+       }, {
+           headers: {
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${apiKey}`,
+           },
+       });
 
-router.post('/', async (req, res) => {
-    const { message } = req.body;
+       const chatResponse = response.data.choices[0].text.trim();
+
+       res.json({ message: chatResponse });
+   } catch(error) {
+       console.error('Error:', error.message);
+       res.status(500).json({error: 'Something went wrong. '});
+   }
+
+    /*const { message } = req.body;
     console.log(message);
     userInterface.prompt();
     userInterface.on("line", async input => {
@@ -32,8 +45,9 @@ router.post('/', async (req, res) => {
         })
         res.send(completion.data.choices[0].message);
         userInterface.prompt();
-    })
+    })*/
 
-})
+
+});
 
 module.exports = router;
